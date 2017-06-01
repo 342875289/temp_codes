@@ -1,0 +1,19 @@
+操作说明：
+操作系统为xp：
+1. 把Mscomm.srg,Mscomm32.ocx,Mscomm32.dep三个文件复制到C:\Windows\system32文件下；
+2. 运行MSComm32注册表项文件，提示“是否要将mscomm32.reg中的信息添加进注册表”，选择“是”；
+3. 在开始->运行中输入Regsvr32.exe C:\Windows\system32\Mscomm32.ocx，回车后显示“C:\Windows\system32\Mscomm32.ocx
+   中的DllRegisterServer成功”提示信息；如果提示错误，请确认Mscomm32.ocx的绝对路径(应该为C:\Windows\system32\Mscomm32.ocx)！
+   操作完毕！
+对于2000或98的操作系统，只需将文件夹路径修改为对应的系统的文件夹路径即可，其他操作与xp的一样。
+
+操作系统为64位：
+
+1. 把Mscomm.srg,Mscomm32.ocx,Mscomm32.dep三个文件复制到C:\Windows\SysWOW64文件下；
+2. 运行MSComm32注册表项文件，提示“是否要将mscomm32.reg中的信息添加进注册表”，选择“是”；
+3. 在开始->运行中输入Regsvr32.exe C:\Windows\SysWOW64\Mscomm32.ocx，回车后显示“C:\Windows\SysWOW64\Mscomm32.ocx
+   中的DllRegisterServer成功”提示信息；如果提示错误，请确认Mscomm32.ocx的绝对路径(应该为C:\Windows\SysWOW64\Mscomm32.ocx)！
+   操作完毕！
+
+
+
