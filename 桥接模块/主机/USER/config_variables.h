@@ -26,6 +26,7 @@ enum SelfCmd{
 extern enum workstates workstate;
 extern u8 STATIC_LEVEL_RX_BUF[];
 extern u8 CONTROL_BUS_RX_BUF[];
+extern u8 CONTROL_BUS_TX_BUF[];
 extern u8 USART_RX_BUF[];
 extern u8 USART_TX_BUF[];
 extern u8 NRF_RX_BUF[];
@@ -51,6 +52,10 @@ extern struct Self_State self_state;
 struct Self_State{
 	u8 self_address;
 	u8 target_address;
+	u8 is_static_level_init;
+	u8 is_doing_init;
+	u8 is_sampling_standard_point;
+	double static_level_original_value[3];
 };
 
 struct sensor_data{
@@ -58,7 +63,7 @@ struct sensor_data{
 	double parameter[3];
 	u8 data[13];
 	u8 is_new ;
-	
+	double delta_orignal;
 };
 
 #endif

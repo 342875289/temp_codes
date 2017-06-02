@@ -2,6 +2,7 @@
 
 u8 STATIC_LEVEL_RX_BUF[USART_BEFFER_SIZE];
 u8 CONTROL_BUS_RX_BUF[USART_BEFFER_SIZE];
+u8 CONTROL_BUS_TX_BUF[USART_BEFFER_SIZE];
 
 u8 USART_RX_BUF[USART_BEFFER_SIZE];
 u8 USART_TX_BUF[USART_BEFFER_SIZE];
@@ -13,7 +14,7 @@ u8 Result_Pin4_TX_BUF[USART_BEFFER_SIZE];
 u8 Result_Pin3_TX_BUF[USART_BEFFER_SIZE];
 
 
-struct Self_State self_state;
+struct Self_State self_state={0x07,0x00,0,0,0,{0.0,0.0,0.0}};
 struct sensor_data static_level_sensor_profile[3]={ 
 {"712566",{0.00744,2.15329,27.63270}},
 {"712911",{0.00737,2.16623,27.93397}},

@@ -6,6 +6,7 @@ void start_up(void)
 {
 		USART_Cmd(USART1, ENABLE);
 		USART_Cmd(USART3, ENABLE);
+		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 		USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 		TIM_Cmd(TIM3, ENABLE);  //使能TIM3外设	 
 		TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE ); //使能指定的TIM3中断,允许更新中断
