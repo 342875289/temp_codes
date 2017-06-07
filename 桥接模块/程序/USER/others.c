@@ -4,8 +4,35 @@
 #include "math.h"
 #include "string.h"
 #include "usart.h"
+#include "stmflash.h"
 
 #define M_PI 3.1415926535898
+
+#define SIZE sizeof(self_state_saved)		//数组长度
+
+#define FLASH_SAVE_ADDR  0X0801F000		//设置FLASH 保存地址(必须为偶数，且其值要大于本代码所占用FLASH的大小+0X08000000)
+
+
+void saveConfig(void)
+{
+	self_state_saved.is_static_level_init 						=		 self_state.is_static_level_init;
+	self_state_saved.static_level_original_value	[0] =		 self_state.static_level_original_value[0];
+	self_state_saved.static_level_original_value 	[1]	=		 self_state.static_level_original_value[1];
+	self_state_saved.static_level_original_value	[2]	=		 self_state.static_level_original_value[2];
+	
+	STMFLASH_Write(FLASH_SAVE_ADDR,(u16*)config_point,SIZE);
+}
+void readConfig(void)
+{
+	 STMFLASH_Read(FLASH_SAVE_ADDR,(u16*)config_point,SIZE);
+	
+	 self_state.is_static_level_init 						  =		 self_state_saved.is_static_level_init;
+	 self_state.static_level_original_value	[0]   =		 self_state_saved.static_level_original_value[0];
+	 self_state.static_level_original_value [1]		=		 self_state_saved.static_level_original_value[1];
+	 self_state.static_level_original_value	[2]  	=		 self_state_saved.static_level_original_value[2];
+	
+}
+
 
 void process_static_level_data(void)
 {
@@ -47,6 +74,8 @@ void process_static_level_data(void)
 		 {
 			 self_state.is_doing_init = 0;
 			 self_state.is_static_level_init = 1;
+			 //保存配置
+			 saveConfig();
 		 }
 	}  
 	else if(self_state.is_static_level_init == 1)//初始化已完毕，开始采集数据
@@ -80,7 +109,6 @@ void process_static_level_data(void)
 					
 					memcpy(static_level_sensor_profile[target].data,CONTROL_BUS_TX_BUF,sizeof(u8)*(8+5));
 					static_level_sensor_profile[target].is_new = 1;
-					
 					
 					usart1_send_string(CONTROL_BUS_TX_BUF,9);
 			}
@@ -117,7 +145,6 @@ void process_control_bus_data(void)
 								(CONTROL_BUS_RX_BUF[1] == 0x03)   	&&
 								(CONTROL_BUS_RX_BUF[3] == 0x01)  )//读取静力水准仪的命令
 		{
-
 				self_state.target_address = CONTROL_BUS_RX_BUF[0]-4;
 				memcpy(&cmd[2] , static_level_sensor_profile[self_state.target_address].address ,sizeof(u8)*6);
 				usart2_send_string(cmd,8);

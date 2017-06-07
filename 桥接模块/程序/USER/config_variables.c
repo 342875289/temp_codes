@@ -20,7 +20,7 @@ struct sensor_data static_level_sensor_profile[3]={
 {"712911",{0.00737,2.16623,27.93397}},
 {"712915",{0.00714,2.12315,27.76165}}};
 struct sensor_data angle_sensor_profile[3]={{0x01},{0x02},{0x03}};
-	
+struct Self_State_saved self_state_saved,*config_point = &self_state_saved;
 u8 newCmd = 0;//接收标志位
 u8 newSelfCmd = 0;
 u8 cmdNum = 0;//串口数据量

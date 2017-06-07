@@ -19,31 +19,31 @@ int main(void)
 		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	
 		//延时函数初始化	
 		DelayInit();
+	
+		//读取配置信息
+		readConfig();
+	
 		//TIM3_Init(10000,36000);//5s  
 		TIM3_Init(36000,60000);//30s 
+	
 		//初始化 串口
 		UART1_Init(9600);//RS485
 		UART2_Init(2400);//RS485
 		UART3_Init(9600);//RS485
-		//RS485模块初始化
-		//RS485_ControlIO_Init();
 	
 		start_up();
 	
 	while(1)
-	{
-		
-		usart1_send_string(tt,3);
-		
-		usart2_send_string(tt,3);
-		
-		usart3_send_string(tt,3);
-		
+	{	
+		//usart1_send_string(tt,3);
+		//usart2_send_string(tt,3);
+		//usart3_send_string(tt,3);
 		
 		if( static_level_data_received == 1 )
 		{
 				process_static_level_data();
 				static_level_data_received = 0;
+			
 		}
 		if( control_bus_data_received == 1 )
 		{

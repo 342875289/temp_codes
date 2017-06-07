@@ -67,7 +67,7 @@ void UART1_Init(u32 bound)
 		NVIC_InitTypeDef NVIC_InitStructure;
 		/* config USART1 clock */
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA, ENABLE);
-		
+		USART_Cmd(USART1, ENABLE);
 		/* USART1 GPIO config */
 		/* Configure USART1 Tx (PA.09) as alternate function push-pull */
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
@@ -78,7 +78,6 @@ void UART1_Init(u32 bound)
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 		GPIO_Init(GPIOA, &GPIO_InitStructure);
-			
 		/* USART1 mode config */
 		USART_InitStructure.USART_BaudRate = bound;
 		USART_InitStructure.USART_WordLength = USART_WordLength_8b;
@@ -87,23 +86,14 @@ void UART1_Init(u32 bound)
 		USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 		USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 		USART_Init(USART1, &USART_InitStructure); 
-		
-	
 		//Usart1 NVIC 配置
 		NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
 		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;		//
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
 		NVIC_Init(&NVIC_InitStructure);	//根据NVIC_InitStruct中指定的参数初始化外设NVIC寄存器USART1
-		
 		//关闭中断
 		USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);
-	
-  
-  	// Configure USARTy 
-  	USART_Init(USART1, &USART_InitStructure);
-		
-	
 		USART_Cmd(USART1, DISABLE);
 }
 
@@ -118,6 +108,7 @@ void UART2_Init(u32 bound)
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 		// USART2 GPIO config
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
+		USART_Cmd(USART2, ENABLE);
 		/* USART1 GPIO config */
 		/* Configure USART1 Tx (PA.01) as alternate function push-pull */
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
@@ -136,24 +127,18 @@ void UART2_Init(u32 bound)
 		USART_InitStructure.USART_Parity = USART_Parity_No ;
 		USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 		USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-		USART_Init(USART1, &USART_InitStructure); 
 		
-	
+		USART_Init(USART2, &USART_InitStructure); 
+		
 		//Usart1 NVIC 配置
 		NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
 		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
 		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;		//
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
 		NVIC_Init(&NVIC_InitStructure);	//根据NVIC_InitStruct中指定的参数初始化外设NVIC寄存器USART1
-		
 		//关闭中断
 		USART_ITConfig(USART2, USART_IT_RXNE, DISABLE);
-	
-  
-  	// Configure USARTy 
-  	USART_Init(USART2, &USART_InitStructure);
 		
-	
 		USART_Cmd(USART2, DISABLE);
 }
 
@@ -165,6 +150,7 @@ void UART3_Init(u32 bound)
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 		// USART3 GPIO config
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+		USART_Cmd(USART3, ENABLE);
 		// Configure USART3 Tx (PB.10) as alternate function push-pull 
 		GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
@@ -182,8 +168,6 @@ void UART3_Init(u32 bound)
 		USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 		USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 		USART_Init(USART3, &USART_InitStructure); 
-  	// Configure USART3 
-  	USART_Init(USART3, &USART_InitStructure);
 		//开启中断
 		USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);
 	  //使能USART3
@@ -281,28 +265,6 @@ void usart3_send_string(u8 USART_BUFF[],u8 datanum)
 }
 
 
-
-void usart3_send_cmd(u8 USART_BUFF[])
-{
-	u8 i = 0,datanum = USART_BUFF[1] +1 ;
-	//防止发送数据个数超过缓冲区大小
-	//RS485_TX_MODE_ENABLE();
-	if( datanum > (u8)USART_BEFFER_SIZE )
-	{
-		datanum = (u8)USART_BEFFER_SIZE;
-	}
-	while(i<datanum)
-	{
-		while(USART_GetFlagStatus(USART3,USART_FLAG_TC)!=SET);//等待发送结束
-		USART_SendData(USART3,USART_BUFF[i]);
-		i++;
-	}
-	//RS485_RX_MODE_ENABLE();
-}
-
-
-
-
 	
 void USART1_IRQHandler(void)
 { 
@@ -327,7 +289,7 @@ void receive_data_from_static_level(u8 usartData)
 {
 	//$12345678
 	static u8 data_count = 0 , data_num = 9 ;
-		
+	
 	if(static_level_data_received == 0)
 	{
 		if(data_count == data_num ){data_count = 0;}

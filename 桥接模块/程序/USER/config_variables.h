@@ -49,12 +49,18 @@ extern float result_Pin3[2];
 extern struct sensor_data static_level_sensor_profile[3];
 extern struct sensor_data angle_sensor_profile[3];
 extern struct Self_State self_state;
+extern struct Self_State_saved self_state_saved,*config_point;
 struct Self_State{
 	u8 self_address;
 	u8 target_address;
 	u8 is_static_level_init;
 	u8 is_doing_init;
 	u8 is_sampling_standard_point;
+	double static_level_original_value[3];
+};
+
+struct Self_State_saved{
+	u8 is_static_level_init;
 	double static_level_original_value[3];
 };
 
