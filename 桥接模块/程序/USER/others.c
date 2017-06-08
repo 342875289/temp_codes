@@ -84,8 +84,8 @@ void process_static_level_data(void)
 			{
 					standard_point_delta = result - self_state.static_level_original_value[2];
 					memcpy(&cmd[2] , static_level_sensor_profile[self_state.target_address].address ,sizeof(u8)*6);
-					usart2_send_string(cmd,8);
 					self_state.is_sampling_standard_point = 0;
+					usart2_send_string(cmd,8);
 			}
 			else
 			{

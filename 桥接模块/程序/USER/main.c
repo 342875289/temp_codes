@@ -19,13 +19,10 @@ int main(void)
 		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	
 		//延时函数初始化	
 		DelayInit();
-	
 		//读取配置信息
 		readConfig();
-	
-		//TIM3_Init(10000,36000);//5s  
-		TIM3_Init(36000,60000);//30s 
-	
+		TIM3_Init(10000,36000);//5s  
+		//TIM3_Init(36000,60000);//30s 
 		//初始化 串口
 		UART1_Init(9600);//RS485
 		UART2_Init(2400);//RS485
