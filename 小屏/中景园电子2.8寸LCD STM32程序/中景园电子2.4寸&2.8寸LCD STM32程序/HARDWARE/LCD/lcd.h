@@ -1,43 +1,8 @@
-//////////////////////////////////////////////////////////////////////////////////	 
-//本程序只供学习使用，未经作者许可，不得用于其它任何用途
-//中景园电子
-//店铺地址：http://shop73023976.taobao.com/?spm=2013.1.0.0.M4PqC2
-//
-//  文 件 名   : main.c
-//  版 本 号   : v2.0
-//  作    者   : HuangKai
-//  生成日期   : 2014-0101
-//  最近修改   : 
-//  功能描述   : TFT_LCD 接口演示例程(stm32系列)
-//              说明: 
-//              -此部分为不带触摸接口，BLK为背光开关，默认可以不接---------------------------------------------------------------
-//              GND    电源地
-//              VCC    3.3v电源
-//              CLK    接PD6
-//              MOSI   接PD7
-//              RES    接PD4
-//              DC     接PD5
-//              BLK可以不接
-//							MISO不接
- 
-// 修改历史   :
-// 日    期   : 
-// 作    者   : HuangKai
-// 修改内容   : 创建文件
-//版权所有，盗版必究。
-//Copyright(C) 中景园电子2014/3/16
-//All rights reserved
-//******************************************************************************/
 #ifndef __OLED_H
-#define __OLED_H			  	 
-#include "sys.h"
-#include "stdlib.h"	   
+#define __OLED_H		
 #define LCD_W 240
 #define LCD_H 320
-#define	u8 unsigned char
-#define	u16 unsigned int
-#define	u32 unsigned long
-
+#include "sys.h" 
 //OLED模式设置
 //0:4线串行模式
 //1:并行8080模式
@@ -51,8 +16,6 @@
 #define X_WIDTH 	128
 #define Y_WIDTH 	64	    						  
 //-----------------OLED端口定义----------------  					   
-#define OLED_CS_Clr()  GPIO_ResetBits(GPIOD,GPIO_Pin_3)//CS
-#define OLED_CS_Set()  GPIO_SetBits(GPIOD,GPIO_Pin_3)
 
 #define OLED_RST_Clr() GPIO_ResetBits(GPIOD,GPIO_Pin_4)//RES
 #define OLED_RST_Set() GPIO_SetBits(GPIOD,GPIO_Pin_4)
@@ -72,6 +35,9 @@
 #define OLED_DATA 1	//写数据
 
 extern  u16 BACK_COLOR, POINT_COLOR;   //背景色，画笔色
+
+void xianshi(void);
+void showimage(void);
 
 void Lcd_Init(void); 
 void LCD_Clear(u16 Color);

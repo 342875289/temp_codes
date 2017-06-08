@@ -1,9 +1,41 @@
-
-
-#include "oled.h"
-#include "stdlib.h"
-#include "oledfont.h"  	 
+//#include "bmp.h"
+#include "lcd.h"
+#include "lcdfont.h"  	 
 #include "delay.h"
+
+u8 ref=0;//刷新显示
+u16 vx=15542,vy=11165;  //比例因子，此值除以1000之后表示多少个AD值代表一个像素点
+u16 chx=140,chy=146;//默认像素点坐标为0时的AD起始值
+void xianshi()//显示信息
+{   
+	BACK_COLOR=WHITE;
+	POINT_COLOR=RED;	
+	showhanzi(10,0,0);  //晶
+	showhanzi(45,0,1);  //耀
+  LCD_ShowString(10,35,"2.4 TFT SPI 240*320");
+	LCD_ShowString(10,55,"LCD_W:");	LCD_ShowNum(70,55,LCD_W,3);
+	LCD_ShowString(110,55,"LCD_H:");LCD_ShowNum(160,55,LCD_H,3);	
+}
+
+void showimage() //显示40*40图片
+{
+  	int i,j,k; 
+
+	for(k=3;k<8;k++)
+	{
+	   	for(j=0;j<6;j++)
+		{	
+			Address_set(40*j,40*k,40*j+39,40*k+39);		//坐标设置
+		    for(i=0;i<1600;i++)
+			 { 	
+				 		
+			  	 LCD_WR_DATA8(image[i*2+1]);	 
+				   LCD_WR_DATA8(image[i*2]);				
+			 }	
+		 }
+	}
+	ref=0;				
+}
 
 u16 BACK_COLOR, POINT_COLOR;   //背景色，画笔色
 void LCD_Writ_Bus(char dat)   //串行数据写入
@@ -24,29 +56,29 @@ void LCD_Writ_Bus(char dat)   //串行数据写入
 }
 
 void LCD_WR_DATA8(char da) //发送数据-8位参数
-{	OLED_CS_Clr();
+{	
     OLED_DC_Set();
 	LCD_Writ_Bus(da);  
-	OLED_CS_Set();
+	
 }  
  void LCD_WR_DATA(int da)
-{	OLED_CS_Clr();
+{	
     OLED_DC_Set();
 	LCD_Writ_Bus(da>>8);
     LCD_Writ_Bus(da);
-	OLED_CS_Set();
+	
 }	  
 void LCD_WR_REG(char da)	 
-{		OLED_CS_Clr();
+{		
     OLED_DC_Clr();
 	LCD_Writ_Bus(da);
-	OLED_CS_Set();
+	
 }
  void LCD_WR_REG_DATA(int reg,int da)
-{	OLED_CS_Clr();
+{	
     LCD_WR_REG(reg);
 	LCD_WR_DATA(da);
-	OLED_CS_Set();
+	
 }
 
 void Address_set(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2)
@@ -70,28 +102,15 @@ void Lcd_Init(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
  	
- 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB|RCC_APB2Periph_GPIOD|RCC_APB2Periph_GPIOG, ENABLE);	 //使能PC,D,G端口时钟
+ 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	 //使能PC,D,G端口时钟
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_3|GPIO_Pin_8;	 //PD3,PD6推挽输出  
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;	 //PD3,PD6推挽输出  
  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 //推挽输出
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;//速度50MHz
  	GPIO_Init(GPIOD, &GPIO_InitStructure);	  //初始化GPIOD3,6
- 	GPIO_SetBits(GPIOD,GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7|GPIO_Pin_3|GPIO_Pin_8);	//PD3,PD6 输出高
+ 	GPIO_SetBits(GPIOA,GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);	//PD3,PD6 输出高
 
-//调用一次这些函数，免得编译的时候提示警告
-  /* 	LCD_CS =1;
-	if(LCD_CS==0)
-	{
-	   LCD_WR_REG_DATA(0,0);
-	   LCD_ShowString(0,0," ");
-	   LCD_ShowNum(0,0,0,0);
-	   LCD_Show2Num(0,0,0,0);
-	   LCD_DrawPoint_big(0,0);
-	   LCD_DrawRectangle(0,0,0,0);
-	   Draw_Circle(0,0,0);
- 	 }
-	*/
-	OLED_CS_Clr();  //打开片选使能
+	  //打开片选使能
 	 OLED_RST_Clr();
 	delay_ms(20);
 	OLED_RST_Set();
@@ -455,39 +474,4 @@ void LCD_ShowString(u16 x,u16 y,const u8 *p)
         p++;
     }  
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
