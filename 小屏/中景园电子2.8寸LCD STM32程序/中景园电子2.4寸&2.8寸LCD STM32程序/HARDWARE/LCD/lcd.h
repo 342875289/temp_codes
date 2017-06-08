@@ -39,6 +39,8 @@ extern  u16 BACK_COLOR, POINT_COLOR;   //±³¾°É«£¬»­±ÊÉ«
 void xianshi(void);
 void showimage(void);
 
+void SPI_init(void);
+	
 void Lcd_Init(void); 
 void LCD_Clear(u16 Color);
 void Address_set(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2);

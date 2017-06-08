@@ -6,6 +6,100 @@
 u8 ref=0;//刷新显示
 u16 vx=15542,vy=11165;  //比例因子，此值除以1000之后表示多少个AD值代表一个像素点
 u16 chx=140,chy=146;//默认像素点坐标为0时的AD起始值
+
+//用于SPI初始化
+void SPI_init(void)
+{
+  SPI_InitTypeDef  SPI_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
+  //开启相应IO端口的时钟
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB,ENABLE);
+ //使能SPI1时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+  //配置 SPI_NRF_SPI的 SCK,MISO,MOSI引脚，GPIOA^5,GPIOA^6,GPIOA^7 
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; //复用功能
+	GPIO_Init(GPIOA, &GPIO_InitStructure);  
+  //配置SPI_NRF_SPI的CE引脚,和SPI_NRF_SPI的 CSN 引脚
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13|GPIO_Pin_14;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+		   
+  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; //双线全双工
+  SPI_InitStructure.SPI_Mode = SPI_Mode_Master;	 					//主模式
+  SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;	 				//数据大小8位
+  SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;		 				//时钟极性，空闲时为低
+  SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;						//第1个边沿有效，上升沿为采样时刻
+  SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		   					//NSS信号由软件产生
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;  //8分频，9MHz
+  SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;  				//高位在前
+  SPI_InitStructure.SPI_CRCPolynomial = 7;
+  SPI_Init(SPI1, &SPI_InitStructure);
+  // Enable SPI1  
+  SPI_Cmd(SPI1, ENABLE);
+}
+
+//void DMA_Configuration(void)
+//{
+//	DMA_InitTypeDef DMA_InitStructure;
+
+//	RCC->AHB1ENR|=RCC_AHB1Periph_DMA2;
+
+//	DMA_InitStructure.DMA_Channel = DMA_Channel_3;  //通道选择SPI1TX
+//	DMA_InitStructure.DMA_PeripheralBaseAddr =(uint32_t)&(SPI1->DR);//DMA外设地址
+//	//DMA_InitStructure.DMA_Memory0BaseAddr = mar;//DMA 存储器0地址
+//	DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;//存储器到外设模式
+//	//DMA_InitStructure.DMA_BufferSize = 7;//数据传输量 
+//	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//外设非增量模式
+//	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable ;//DMA_MemoryInc_Enable;//存储器增量模式
+//	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;//外设数据长度:16位
+//	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;//存储器数据长度:16位
+//	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;// 使用普通模式 
+//	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;//中等优先级
+//	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
+//	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+//	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;//存储器突发单次传输
+//	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;//外设突发单次传输
+
+//	DMA_Init(DMA2_Stream5,&DMA_InitStructure);//初始化DMA Stream
+//	//DMA_ClearITPendingBit(DMA2_Stream5,DMA_IT_TCIF7);
+//	//DMA_ITConfig(DMA2_Stream7,DMA_IT_TC,ENABLE); 
+//}
+
+//void SPI_DMA_SendByte(uint16_t Byte ,uint32_t Length)
+//{
+//	DMA_Cmd(DMA2_Stream5,DISABLE);
+//	while(DMA_GetCmdStatus(DMA2_Stream5)==ENABLE);
+//	DMA2_Stream5->M0AR=(uint32_t)&Byte;
+//	DMA2_Stream5->NDTR=Length;
+//	SPI_DMACmd(SPI1,SPI_I2S_DMAReq_Tx,ENABLE);
+//	DMA_Cmd(DMA2_Stream5,ENABLE);
+//	while(DMA_GetFlagStatus(DMA2_Stream5,DMA_FLAG_TCIF5)==RESET);
+//	DMA_ClearFlag(DMA2_Stream5,DMA_FLAG_TCIF5);
+//} 
+
+
+
+
+u8 SPI_RW(u8 dat)
+{  	
+   /* 当 SPI发送缓冲器非空时等待 */
+  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+  
+   /* 通过 SPI2发送一字节数据 */
+  SPI_I2S_SendData(SPI1, dat);		
+ 
+   /* 当SPI接收缓冲器为空时等待 */
+  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
+
+  /* Return the byte read from the SPI bus */
+  return SPI_I2S_ReceiveData(SPI1);
+}
+
+
+
 void xianshi()//显示信息
 {   
 	BACK_COLOR=WHITE;

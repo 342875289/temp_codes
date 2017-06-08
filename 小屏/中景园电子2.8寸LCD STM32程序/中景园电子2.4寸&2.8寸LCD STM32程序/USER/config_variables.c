@@ -26,30 +26,7 @@ void Check_Connect()
 	
 	if(slave_state.last_sensor_connect_Time<=0 && slave_state.isSensorConnect==1)
 	{
-//		OLED_ShowCN(111,0,11);//��
-
-//		OLED_ShowCN(32,4,25);//
-//		OLED_ShowCN(48,4,25);//
-//		OLED_ShowCN(64,4,23);//δ
-//		OLED_ShowCN(80,4,24);//֪
-//		OLED_ShowCN(96,4,25);//
-//		
-//		OLED_ShowCN(0,6,25);//
-//		OLED_ShowCN(16,6,25);//
-//		OLED_ShowCN(32,6,25);//
-//		OLED_ShowCN(48,6,25);//
-//		OLED_ShowCN(48,6,25);//
-//		OLED_ShowCN(64,6,25);//
-//		OLED_ShowCN(80,6,25);//
-//		OLED_ShowCN(96,6,25);//
-//		OLED_ShowCN(112,6,25);//
-		/*
-		OLED_ShowCN(32,6,25);//
-		OLED_ShowCN(48,6,25);//
-		OLED_ShowCN(64,6,23);//δ
-		OLED_ShowCN(80,6,24);//֪
-		OLED_ShowCN(96,6,25);//
-		*/
+		//
 		slave_state.isSensorConnect=0;
 	}
 	
@@ -57,14 +34,14 @@ void Check_Connect()
 
 void searchSensorAddr()
 {
-	static u8 searchSensorAddrCmd[] = {0x68,0x04,0x00,0x1F,0x23};
+	static u8 searchSensorAddrCmd[] = {0x77,0x04,0x00,0x1F,0x23};
 	usart3_send_cmd(searchSensorAddrCmd);
 }
 
 
 void readSensorXY()
 {
-	static u8 readCmd[] = {0x77,0x04,0x02,0x04,0x0A};
+	static u8 readCmd[] = {0x77,0x04,0x00,0x04,0x08};
 	u8 i,temp;
 	readCmd[2] = sensor_address;
 	for(i=1,temp=0;i<4;i++)

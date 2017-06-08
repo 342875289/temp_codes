@@ -136,7 +136,7 @@ void usart_data_process(u8 usartData,u8 USART_BUFF[])
 			data_count ++;
 			if(data_count == data_num )
 			{
-					//getInformationToOLED( USART_BUFF);
+					getInformationToOLED( USART_BUFF);
 					newCmd = 1;
 			}
 		}
@@ -146,15 +146,22 @@ void usart_data_process(u8 usartData,u8 USART_BUFF[])
 
 void getInformationToOLED(u8 USART_BUFF[])
 {
-	int x_i,x_f,y_i,y_f;
+	int x_i,x_f,y_i,y_f,z_i,z_f;
 	if(( USART_BUFF[0] == 0x77 )  )
 	{
 		if( USART_BUFF[1] == 0x0D )
 		{
 			x_i = (USART_BUFF[4]&0x0F)*100 + (USART_BUFF[5]>>4)*10 + (USART_BUFF[5]&0x0F);
-			x_f = (int)(USART_BUFF[6]>>4)*1000 + (int)(USART_BUFF[6]&0x0F)*100 + (int)(USART_BUFF[7]>>4)*10 + (int)(USART_BUFF[7]&0x0F);
-			y_i = (USART_BUFF[8]&0x0F)*100 + (USART_BUFF[9]>>4)*10 + (USART_BUFF[9]&0x0F);
-			y_f = (int)(USART_BUFF[10]>>4)*1000 + (int)(USART_BUFF[10]&0x0F)*100 + (int)(USART_BUFF[11]>>4)*10 + (int)(USART_BUFF[11]&0x0F);
+			x_f = (int)(USART_BUFF[6]>>4)*1000 + (int)(USART_BUFF[6]&0x0F)*100;
+				
+			y_i = (USART_BUFF[7]&0x0F)*100 + (USART_BUFF[8]>>4)*10 + (USART_BUFF[8]&0x0F);
+			y_f = (int)(USART_BUFF[9]>>4)*1000 + (int)(USART_BUFF[9]&0x0F)*100 ;
+				
+			z_i = (USART_BUFF[10]&0x0F)*100 + (USART_BUFF[11]>>4)*10 + (USART_BUFF[11]&0x0F);
+			z_f = (int)(USART_BUFF[12]>>4)*1000 + (int)(USART_BUFF[12]&0x0F)*100 ;
+			
+			
+			
 			if(USART_BUFF[4]&0xF0)//XÎª¸ºÊý
 			{
 				x_f = - x_f;
