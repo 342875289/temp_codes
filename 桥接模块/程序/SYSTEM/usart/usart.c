@@ -269,7 +269,7 @@ void usart3_send_string(u8 USART_BUFF[],u8 datanum)
 void USART1_IRQHandler(void)
 { 
   if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-  {
+  {		
     /* Read one byte from the receive data register */
 		receive_data_from_control_bus(USART_ReceiveData(USART1));
 	}

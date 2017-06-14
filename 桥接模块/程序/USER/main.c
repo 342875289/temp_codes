@@ -8,7 +8,7 @@
 #include "others.h"
 u8 status;
 u8 usartdata;
-u8 tt[]={0xff,0x11,0x33};
+u8 tt[]={01,03 ,00, 01, 00, 04 ,0x15 ,0xC9};
 int main(void)
 {	
 		//时钟配置
@@ -21,7 +21,7 @@ int main(void)
 		DelayInit();
 		//读取配置信息
 		readConfig();
-		TIM3_Init(10000,36000);//5s  
+		TIM3_Init(2000,36000);//1s  
 		//TIM3_Init(36000,60000);//30s 
 		//初始化 串口
 		UART1_Init(9600);//RS485
@@ -32,9 +32,9 @@ int main(void)
 	
 	while(1)
 	{	
-		//usart1_send_string(tt,3);
-		//usart2_send_string(tt,3);
-		//usart3_send_string(tt,3);
+//		usart1_send_string(tt,8);
+//		usart2_send_string(tt,8);
+//		usart3_send_string(tt,8);
 		
 		if( static_level_data_received == 1 )
 		{
@@ -61,10 +61,17 @@ void TIM3_IRQHandler(void)   //TIM3中断
 			if(time_count >= 1)//10--5分钟
 			{
 				time_count = 0;
+				
+//				usart1_send_string(tt,8);
+//				usart2_send_string(tt,8);
+//				usart3_send_string(tt,8);
+				
 				for(i=0;i<3;i++)
 				{
+					//usart1_send_string(tt,8);
 						if(angle_sensor_profile[i].is_new == 1)
 						{
+							//usart3_send_string(tt,8);
 							usart3_send_string(angle_sensor_profile[i].data,13);
 							angle_sensor_profile[i].is_new = 0;
 						}

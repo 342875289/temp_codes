@@ -3,6 +3,8 @@
 #include "lcdfont.h"  	 
 #include "delay.h"
 
+
+
 u8 ref=0;//刷新显示
 u16 vx=15542,vy=11165;  //比例因子，此值除以1000之后表示多少个AD值代表一个像素点
 u16 chx=140,chy=146;//默认像素点坐标为0时的AD起始值
@@ -29,7 +31,7 @@ void SPI_init(void)
 		   
   SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; //双线全双工
   SPI_InitStructure.SPI_Mode = SPI_Mode_Master;	 					//主模式
-  SPI_InitStructure.SPI_DataSize = SPI_DataSize_16b;	 				//数据大小8位
+  SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;	 				//数据大小8位
   SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;		 				//时钟极性，空闲时为低
   SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;						//第1个边沿有效，上升沿为采样时刻
   SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		   					//NSS信号由软件产生
@@ -82,24 +84,35 @@ void SPI_init(void)
 
 
 
-
-u8 SPI_RW(u8 dat)
-{  	
-   /* 当 SPI发送缓冲器非空时等待 */
-  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-  
-   /* 通过 SPI2发送一字节数据 */
-  SPI_I2S_SendData(SPI1, dat);		
- 
-   /* 当SPI接收缓冲器为空时等待 */
-  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-
-  /* Return the byte read from the SPI bus */
-  return SPI_I2S_ReceiveData(SPI1);
+void SPI_write_cmd(u8 data)
+{
+		GPIO_ResetBits(GPIOB,GPIO_Pin_0);
+		DelayUs(5);
+		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+    SPI_I2S_SendData(SPI1,data);
 }
 
-
-
+void SPI_write_data(u8 data)
+{
+		GPIO_SetBits(GPIOB,GPIO_Pin_0);
+		DelayUs(5);
+		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+    SPI_I2S_SendData(SPI1,data);
+}
+ void SPI_write_data_u16(u16 data)
+{	
+		GPIO_SetBits(GPIOB,GPIO_Pin_0);
+		DelayUs(5);
+		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+    SPI_I2S_SendData(SPI1,data>>8);
+		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+    SPI_I2S_SendData(SPI1,data);
+}	  
+ void SPI_write_cmd_data(u8 cmd,u16 data)
+{	
+    SPI_write_cmd(cmd);
+		SPI_write_data_u16(data);
+}
 void xianshi()//显示信息
 {   
 	BACK_COLOR=WHITE;
@@ -123,8 +136,8 @@ void showimage() //显示40*40图片
 		    for(i=0;i<1600;i++)
 			 { 	
 				 		
-			  	 LCD_WR_DATA8(image[i*2+1]);	 
-				   LCD_WR_DATA8(image[i*2]);				
+			  	 SPI_write_data(image[i*2+1]);	 
+				   SPI_write_data(image[i*2]);				
 			 }	
 		 }
 	}
@@ -132,71 +145,44 @@ void showimage() //显示40*40图片
 }
 
 u16 BACK_COLOR, POINT_COLOR;   //背景色，画笔色
-void LCD_Writ_Bus(char dat)   //串行数据写入
-{	
-	u8 i;			  
-  
-
-	for(i=0;i<8;i++)
-	{			  
-		OLED_SCLK_Clr();
-		if(dat&0x80)
-		   OLED_SDIN_Set();
-		else 
-		   OLED_SDIN_Clr();
-		OLED_SCLK_Set();
-		dat<<=1;   
-	}			
-}
-
-void LCD_WR_DATA8(char da) //发送数据-8位参数
-{	
-    OLED_DC_Set();
-	LCD_Writ_Bus(da);  
-	
-}  
- void LCD_WR_DATA(int da)
-{	
-    OLED_DC_Set();
-	LCD_Writ_Bus(da>>8);
-    LCD_Writ_Bus(da);
-	
-}	  
-void LCD_WR_REG(char da)	 
-{		
-    OLED_DC_Clr();
-	LCD_Writ_Bus(da);
-	
-}
- void LCD_WR_REG_DATA(int reg,int da)
-{	
-    LCD_WR_REG(reg);
-	LCD_WR_DATA(da);
-	
-}
 
 void Address_set(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2)
 { 
-	LCD_WR_REG(0x2a);
-   LCD_WR_DATA8(x1>>8);
-   LCD_WR_DATA8(x1);
-   LCD_WR_DATA8(x2>>8);
-   LCD_WR_DATA8(x2);
+	SPI_write_cmd(0x2a);
+   SPI_write_data(x1>>8);
+   SPI_write_data(x1);
+   SPI_write_data(x2>>8);
+   SPI_write_data(x2);
   
-   LCD_WR_REG(0x2b);
-   LCD_WR_DATA8(y1>>8);
-   LCD_WR_DATA8(y1);
-   LCD_WR_DATA8(y2>>8);
-   LCD_WR_DATA8(y2);
+   SPI_write_cmd(0x2b);
+   SPI_write_data(y1>>8);
+   SPI_write_data(y1);
+   SPI_write_data(y2>>8);
+   SPI_write_data(y2);
 
-   LCD_WR_REG(0x2C);					 						 
+   SPI_write_cmd(0x2C);					 						 
 }
+
 
 void Lcd_Init(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
  	
+<<<<<<< HEAD
  	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);	 //使能PC,D,G端口时钟
+=======
+ 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);	
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;	
+ 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 	GPIO_Init(GPIOD, &GPIO_InitStructure);	  
+ 	GPIO_SetBits(GPIOA,GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;	  
+ 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 	GPIO_SetBits(GPIOB,GPIO_Pin_0);	
+>>>>>>> f371684a4d2ea8aaca79d61859aef9bb735a1623
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;	 
  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 
@@ -215,108 +201,108 @@ void Lcd_Init(void)
 	delay_ms(20);
 	
 //************* Start Initial Sequence **********// 
-LCD_WR_REG(0xCF);  
-LCD_WR_DATA8(0x00); 
-LCD_WR_DATA8(0xD9); 
-LCD_WR_DATA8(0X30); 
+SPI_write_cmd(0xCF);  
+SPI_write_data(0x00); 
+SPI_write_data(0xD9); 
+SPI_write_data(0X30); 
  
-LCD_WR_REG(0xED);  
-LCD_WR_DATA8(0x64); 
-LCD_WR_DATA8(0x03); 
-LCD_WR_DATA8(0X12); 
-LCD_WR_DATA8(0X81); 
+SPI_write_cmd(0xED);  
+SPI_write_data(0x64); 
+SPI_write_data(0x03); 
+SPI_write_data(0X12); 
+SPI_write_data(0X81); 
  
-LCD_WR_REG(0xE8);  
-LCD_WR_DATA8(0x85); 
-LCD_WR_DATA8(0x10); 
-LCD_WR_DATA8(0x78); 
+SPI_write_cmd(0xE8);  
+SPI_write_data(0x85); 
+SPI_write_data(0x10); 
+SPI_write_data(0x78); 
  
-LCD_WR_REG(0xCB);  
-LCD_WR_DATA8(0x39); 
-LCD_WR_DATA8(0x2C); 
-LCD_WR_DATA8(0x00); 
-LCD_WR_DATA8(0x34); 
-LCD_WR_DATA8(0x02); 
+SPI_write_cmd(0xCB);  
+SPI_write_data(0x39); 
+SPI_write_data(0x2C); 
+SPI_write_data(0x00); 
+SPI_write_data(0x34); 
+SPI_write_data(0x02); 
  
-LCD_WR_REG(0xF7);  
-LCD_WR_DATA8(0x20); 
+SPI_write_cmd(0xF7);  
+SPI_write_data(0x20); 
  
-LCD_WR_REG(0xEA);  
-LCD_WR_DATA8(0x00); 
-LCD_WR_DATA8(0x00); 
+SPI_write_cmd(0xEA);  
+SPI_write_data(0x00); 
+SPI_write_data(0x00); 
  
-LCD_WR_REG(0xC0);    //Power control 
-LCD_WR_DATA8(0x21);   //VRH[5:0] 
+SPI_write_cmd(0xC0);    //Power control 
+SPI_write_data(0x21);   //VRH[5:0] 
  
-LCD_WR_REG(0xC1);    //Power control 
-LCD_WR_DATA8(0x12);   //SAP[2:0];BT[3:0] 
+SPI_write_cmd(0xC1);    //Power control 
+SPI_write_data(0x12);   //SAP[2:0];BT[3:0] 
  
-LCD_WR_REG(0xC5);    //VCM control 
-LCD_WR_DATA8(0x32); 
-LCD_WR_DATA8(0x3C); 
+SPI_write_cmd(0xC5);    //VCM control 
+SPI_write_data(0x32); 
+SPI_write_data(0x3C); 
  
-LCD_WR_REG(0xC7);    //VCM control2 
-LCD_WR_DATA8(0XC1); 
+SPI_write_cmd(0xC7);    //VCM control2 
+SPI_write_data(0XC1); 
  
-LCD_WR_REG(0x36);    // Memory Access Control 
-LCD_WR_DATA8(0x08); 
+SPI_write_cmd(0x36);    // Memory Access Control 
+SPI_write_data(0x08); 
  
-LCD_WR_REG(0x3A);   
-LCD_WR_DATA8(0x55); 
+SPI_write_cmd(0x3A);   
+SPI_write_data(0x55); 
 
-LCD_WR_REG(0xB1);   
-LCD_WR_DATA8(0x00);   
-LCD_WR_DATA8(0x18); 
+SPI_write_cmd(0xB1);   
+SPI_write_data(0x00);   
+SPI_write_data(0x18); 
  
-LCD_WR_REG(0xB6);    // Display Function Control 
-LCD_WR_DATA8(0x0A); 
-LCD_WR_DATA8(0xA2); 
+SPI_write_cmd(0xB6);    // Display Function Control 
+SPI_write_data(0x0A); 
+SPI_write_data(0xA2); 
 
  
  
-LCD_WR_REG(0xF2);    // 3Gamma Function Disable 
-LCD_WR_DATA8(0x00); 
+SPI_write_cmd(0xF2);    // 3Gamma Function Disable 
+SPI_write_data(0x00); 
  
-LCD_WR_REG(0x26);    //Gamma curve selected 
-LCD_WR_DATA8(0x01); 
+SPI_write_cmd(0x26);    //Gamma curve selected 
+SPI_write_data(0x01); 
  
-LCD_WR_REG(0xE0);    //Set Gamma 
-LCD_WR_DATA8(0x0F); 
-LCD_WR_DATA8(0x20); 
-LCD_WR_DATA8(0x1E); 
-LCD_WR_DATA8(0x09); 
-LCD_WR_DATA8(0x12); 
-LCD_WR_DATA8(0x0B); 
-LCD_WR_DATA8(0x50); 
-LCD_WR_DATA8(0XBA); 
-LCD_WR_DATA8(0x44); 
-LCD_WR_DATA8(0x09); 
-LCD_WR_DATA8(0x14); 
-LCD_WR_DATA8(0x05); 
-LCD_WR_DATA8(0x23); 
-LCD_WR_DATA8(0x21); 
-LCD_WR_DATA8(0x00); 
+SPI_write_cmd(0xE0);    //Set Gamma 
+SPI_write_data(0x0F); 
+SPI_write_data(0x20); 
+SPI_write_data(0x1E); 
+SPI_write_data(0x09); 
+SPI_write_data(0x12); 
+SPI_write_data(0x0B); 
+SPI_write_data(0x50); 
+SPI_write_data(0XBA); 
+SPI_write_data(0x44); 
+SPI_write_data(0x09); 
+SPI_write_data(0x14); 
+SPI_write_data(0x05); 
+SPI_write_data(0x23); 
+SPI_write_data(0x21); 
+SPI_write_data(0x00); 
  
-LCD_WR_REG(0XE1);    //Set Gamma 
-LCD_WR_DATA8(0x00); 
-LCD_WR_DATA8(0x19); 
-LCD_WR_DATA8(0x19); 
-LCD_WR_DATA8(0x00); 
-LCD_WR_DATA8(0x12); 
-LCD_WR_DATA8(0x07); 
-LCD_WR_DATA8(0x2D); 
-LCD_WR_DATA8(0x28); 
-LCD_WR_DATA8(0x3F); 
-LCD_WR_DATA8(0x02); 
-LCD_WR_DATA8(0x0A); 
-LCD_WR_DATA8(0x08); 
-LCD_WR_DATA8(0x25); 
-LCD_WR_DATA8(0x2D); 
-LCD_WR_DATA8(0x0F); 
+SPI_write_cmd(0XE1);    //Set Gamma 
+SPI_write_data(0x00); 
+SPI_write_data(0x19); 
+SPI_write_data(0x19); 
+SPI_write_data(0x00); 
+SPI_write_data(0x12); 
+SPI_write_data(0x07); 
+SPI_write_data(0x2D); 
+SPI_write_data(0x28); 
+SPI_write_data(0x3F); 
+SPI_write_data(0x02); 
+SPI_write_data(0x0A); 
+SPI_write_data(0x08); 
+SPI_write_data(0x25); 
+SPI_write_data(0x2D); 
+SPI_write_data(0x0F); 
  
-LCD_WR_REG(0x11);    //Exit Sleep 
+SPI_write_cmd(0x11);    //Exit Sleep 
 delay_ms(120); 
-LCD_WR_REG(0x29);    //Display on 
+SPI_write_cmd(0x29);    //Display on 
  
 } 
 
@@ -330,7 +316,7 @@ void LCD_Clear(u16 Color)
 	 {
 	  for (j=0;j<LCD_H;j++)
 	   	{
-        	LCD_WR_DATA(Color);	 			 
+        	SPI_write_data(Color);	 			 
 	    }
 
 	  }
@@ -352,11 +338,11 @@ void showhanzi(unsigned int x,unsigned int y,unsigned char index)
 		{ 		     
 		 	if((*temp&(1<<i))!=0)
 			{
-				LCD_WR_DATA(POINT_COLOR);
+				SPI_write_data(POINT_COLOR);
 			} 
 			else
 			{
-				LCD_WR_DATA(BACK_COLOR);
+				SPI_write_data(BACK_COLOR);
 			}   
 		}
 		temp++;
@@ -367,7 +353,7 @@ void showhanzi(unsigned int x,unsigned int y,unsigned char index)
 void LCD_DrawPoint(u16 x,u16 y)
 {
 	Address_set(x,y,x,y);//设置光标位置 
-	LCD_WR_DATA(POINT_COLOR); 	    
+	SPI_write_data(POINT_COLOR); 	    
 } 	 
 //画一个大点
 //POINT_COLOR:此点的颜色
@@ -384,7 +370,7 @@ void LCD_Fill(u16 xsta,u16 ysta,u16 xend,u16 yend,u16 color)
 	Address_set(xsta,ysta,xend,yend);      //设置光标位置 
 	for(i=ysta;i<=yend;i++)
 	{													   	 	
-		for(j=xsta;j<=xend;j++)LCD_WR_DATA(color);//设置光标位置 	    
+		for(j=xsta;j<=xend;j++)SPI_write_data(color);//设置光标位置 	    
 	} 					  	    
 }  
 //画线
@@ -492,7 +478,7 @@ void LCD_ShowChar(u16 x,u16 y,u8 num,u8 mode)
 		    {                 
 		        if(temp&0x01)POINT_COLOR=colortemp;
 				else POINT_COLOR=BACK_COLOR;
-				LCD_WR_DATA(POINT_COLOR);	
+				SPI_write_data(POINT_COLOR);	
 				temp>>=1; 
 				x++;
 		    }

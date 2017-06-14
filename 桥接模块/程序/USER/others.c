@@ -120,18 +120,25 @@ void process_static_level_data(void)
 
 void process_control_bus_data(void)
 {
+	static u8 i = 0;
 	static u8 target_angle_sensor,cmd[8]="#+";
 		if(CONTROL_BUS_RX_BUF[0]==self_state.self_address)//模块参数设置命令
 		{
 				if(  (CONTROL_BUS_RX_BUF[1]==0x06) && (CONTROL_BUS_RX_BUF[3]==0x0A) && (CONTROL_BUS_RX_BUF[5]==0x01) )
 				{
+					i++;
+					if(i>=3)
+					{
+						i=0;
 						memcpy(&cmd[2] , static_level_sensor_profile[0].address ,sizeof(u8)*6);
 						usart2_send_string(cmd,8);
 						self_state.is_static_level_init = 0;
 						self_state.is_doing_init = 1;
+					}
+						
 				}
 		}
-		else if(   ((CONTROL_BUS_RX_BUF[0]>=0x01) || (CONTROL_BUS_RX_BUF[0]<=0x03) )   &&   
+		else if(   ((CONTROL_BUS_RX_BUF[0]>=0x01) && (CONTROL_BUS_RX_BUF[0]<=0x03) )   &&   
 								(CONTROL_BUS_RX_BUF[1] == 0x03)   	&&
 								(CONTROL_BUS_RX_BUF[2] == 0x08)  )//传感器倾角数据
 		{
@@ -141,12 +148,12 @@ void process_control_bus_data(void)
 			
 		}
 		else if(  	( self_state.is_static_level_init == 1 )  &&
-								((CONTROL_BUS_RX_BUF[0]>=0x04) || (CONTROL_BUS_RX_BUF[0]<=0x06) )   &&   
+								((CONTROL_BUS_RX_BUF[0]>=0x04) && (CONTROL_BUS_RX_BUF[0]<=0x06) )   &&   
 								(CONTROL_BUS_RX_BUF[1] == 0x03)   	&&
 								(CONTROL_BUS_RX_BUF[3] == 0x01)  )//读取静力水准仪的命令
 		{
 				self_state.target_address = CONTROL_BUS_RX_BUF[0]-4;
-				memcpy(&cmd[2] , static_level_sensor_profile[self_state.target_address].address ,sizeof(u8)*6);
+				memcpy(&cmd[2] , static_level_sensor_profile[2].address ,sizeof(u8)*6);
 				usart2_send_string(cmd,8);
 				self_state.is_sampling_standard_point = 1;
 		}
