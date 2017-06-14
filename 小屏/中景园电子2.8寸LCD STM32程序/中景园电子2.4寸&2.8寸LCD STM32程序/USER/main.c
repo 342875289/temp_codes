@@ -11,7 +11,7 @@
 //CLK    接PD6 	PA5
 //MOSI   接PD7	PA7
 //RES    接PD4 	PA6
-//DC     接PD5 	PA4
+//DC     接PD5 	PB0
 //BLK可以不接
 //MISO不接
  int main(void)
@@ -24,11 +24,11 @@
 		//UART3_Init(9600);
 	  //RS485_ControlIO_Init();
 	 
-		//Lcd_Init();			//初始化OLED
-		//LCD_Clear(WHITE); //清屏
-		//BACK_COLOR=BLACK;;POINT_COLOR=WHITE; 
-		//xianshi(); //显示信息
-		//showimage(); //显示40*40图片
+		Lcd_Init();			//初始化OLED
+		LCD_Clear(WHITE); //清屏
+		BACK_COLOR=BLACK;;POINT_COLOR=WHITE; 
+		xianshi(); //显示信息
+		showimage(); //显示40*40图片
 	 
 	 
 		//RS485_TX_MODE_ENABLE();
