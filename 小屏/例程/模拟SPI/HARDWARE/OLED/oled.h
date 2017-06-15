@@ -1,8 +1,27 @@
+
 #ifndef __OLED_H
-#define __OLED_H		
+#define __OLED_H			  	 
+#include "sys.h"
+#include "stdlib.h"	   
 #define LCD_W 240
 #define LCD_H 320
-#include "sys.h" 
+#define	u8 unsigned char
+#define	u16 unsigned int
+#define	u32 unsigned long
+
+//说明: 
+//-此lcd不带触摸接口，BLK为背光开关，默认可以不接
+//GND    电源地
+//VCC    3.3v电源
+//CLK    接 PA5 --sck
+//MOSI   接	PA7 --mosi
+//RES    接 PA6 --miso
+//DC     接 PB0 --pb0   高为发送数据  低为发送命令
+//BLK可以不接
+//MISO不接
+
+
+
 //OLED模式设置
 //0:4线串行模式
 //1:并行8080模式
@@ -16,40 +35,32 @@
 #define X_WIDTH 	128
 #define Y_WIDTH 	64	    						  
 //-----------------OLED端口定义----------------  					   
+#define OLED_SCLK_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_5)//CLK
+#define OLED_SCLK_Set() GPIO_SetBits(GPIOA,GPIO_Pin_5)
 
-//说明: 
-//-此lcd不带触摸接口，BLK为背光开关，默认可以不接
-//GND    电源地
-//VCC    3.3v电源
-//CLK    接PD6 	PA5 --sck
-//MOSI   接PD7	PA7 --mosi
-//RES    接PD4 	PA6 --miso
-//DC     接PD5 	PB0 --pb0
-//BLK可以不接
-//MISO不接
+#define OLED_SDIN_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_7)//DIN
+#define OLED_SDIN_Set() GPIO_SetBits(GPIOA,GPIO_Pin_7)
 
 #define OLED_RST_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_6)//RES
 #define OLED_RST_Set() GPIO_SetBits(GPIOA,GPIO_Pin_6)
 
+#define OLED_DC_Clr() GPIO_ResetBits(GPIOB,GPIO_Pin_0)//DC
+#define OLED_DC_Set() GPIO_SetBits(GPIOB,GPIO_Pin_0)
+ 		     
+#define OLED_BLK_Clr()  GPIO_ResetBits(GPIOA,GPIO_Pin_4)//CS
+#define OLED_BLK_Set()  GPIO_SetBits(GPIOA,GPIO_Pin_4)
 
 #define OLED_CMD  0	//写命令
 #define OLED_DATA 1	//写数据
 
 extern  u16 BACK_COLOR, POINT_COLOR;   //背景色，画笔色
 
-void xianshi(void);
-void showimage(void);
-
-void SPI_init(void);
-
 void Lcd_Init(void); 
 void LCD_Clear(u16 Color);
 void Address_set(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2);
-
-void SPI_write_data(u8 da);
-void SPI_write_cmd(u8 da);
-void SPI_write_data_u16(u16 data);
-void SPI_write_cmd_data(u8 cmd,u16 data);
+void LCD_WR_DATA8(char da); //发送数据-8位参数
+void LCD_WR_DATA(int da);
+void LCD_WR_REG(char da);
 
 void LCD_DrawPoint(u16 x,u16 y);//画点
 void LCD_DrawPoint_big(u16 x,u16 y);//画一个大点

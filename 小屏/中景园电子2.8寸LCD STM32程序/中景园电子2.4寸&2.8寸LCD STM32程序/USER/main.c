@@ -23,7 +23,7 @@
 		//TIM1_Init(2000,7200);//200ms 定时器
 		//UART3_Init(9600);
 	  //RS485_ControlIO_Init();
-	 
+		SPI_init();
 		Lcd_Init();			//初始化OLED
 		LCD_Clear(BLUE); //清屏
 		BACK_COLOR=BLACK;
