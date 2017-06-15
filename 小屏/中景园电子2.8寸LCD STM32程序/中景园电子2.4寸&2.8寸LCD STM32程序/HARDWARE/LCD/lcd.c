@@ -14,22 +14,16 @@ void SPI_init(void)
 {
   SPI_InitTypeDef  SPI_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
-  //开启相应IO端口的时钟
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |RCC_APB2Periph_GPIOB,ENABLE);
+	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);	
  //使能SPI1时钟
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-  //配置 SPI_NRF_SPI的 SCK,MISO,MOSI引脚，GPIOA^5,GPIOA^6,GPIOA^7 
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_7;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP; //复用功能
 	GPIO_Init(GPIOA, &GPIO_InitStructure);  
-  //配置SPI_NRF_SPI的CE引脚,和SPI_NRF_SPI的 CSN 引脚
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13|GPIO_Pin_14;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
 		   
-  SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex; //双线全双工
+  SPI_InitStructure.SPI_Direction = SPI_Direction_1Line_Tx; //双线全双工
   SPI_InitStructure.SPI_Mode = SPI_Mode_Master;	 					//主模式
   SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;	 				//数据大小8位
   SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;		 				//时钟极性，空闲时为低
@@ -88,25 +82,26 @@ void SPI_write_cmd(u8 data)
 {
 		GPIO_ResetBits(GPIOB,GPIO_Pin_0);
 		DelayUs(5);
-		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
     SPI_I2S_SendData(SPI1,data);
+	  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
 }
 
 void SPI_write_data(u8 data)
 {
 		GPIO_SetBits(GPIOB,GPIO_Pin_0);
 		DelayUs(5);
-		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-    SPI_I2S_SendData(SPI1,data);
+		SPI_I2S_SendData(SPI1,data);
+	  while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
 }
  void SPI_write_data_u16(u16 data)
 {	
 		GPIO_SetBits(GPIOB,GPIO_Pin_0);
 		DelayUs(5);
+		SPI_I2S_SendData(SPI1,data>>8);
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-    SPI_I2S_SendData(SPI1,data>>8);
+    SPI_I2S_SendData(SPI1,data & 0xff);
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-    SPI_I2S_SendData(SPI1,data);
+    
 }	  
  void SPI_write_cmd_data(u8 cmd,u16 data)
 {	
@@ -168,34 +163,20 @@ void Lcd_Init(void)
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
  	
-<<<<<<< HEAD
- 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);	 //使能PC,D,G端口时钟
-=======
  	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);	
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;	
- 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
- 	GPIO_Init(GPIOD, &GPIO_InitStructure);	  
- 	GPIO_SetBits(GPIOA,GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;	  
- 	GPIO_Init(GPIOD, &GPIO_InitStructure);
- 	GPIO_SetBits(GPIOB,GPIO_Pin_0);	
->>>>>>> f371684a4d2ea8aaca79d61859aef9bb735a1623
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;	 
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;	 
  	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
  	GPIO_Init(GPIOA, &GPIO_InitStructure);	 
- 	GPIO_SetBits(GPIOA,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);	
+ 	GPIO_SetBits(GPIOA,GPIO_Pin_6);	
 	
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;	 
  	GPIO_Init(GPIOB, &GPIO_InitStructure);	 
  	GPIO_SetBits(GPIOB,GPIO_Pin_0);	
 	
-	  //打开片选使能
-	 OLED_RST_Clr();
+
+	OLED_RST_Clr();
 	delay_ms(20);
 	OLED_RST_Set();
 	delay_ms(20);
