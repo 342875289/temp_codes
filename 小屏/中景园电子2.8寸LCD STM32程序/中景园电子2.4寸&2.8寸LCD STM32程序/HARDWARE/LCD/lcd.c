@@ -168,6 +168,37 @@ void Address_set(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2
 
 void Lcd_Init(void)
 {
+<<<<<<< HEAD
+=======
+	GPIO_InitTypeDef  GPIO_InitStructure;
+ 	
+<<<<<<< HEAD
+ 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);	 //使能PC,D,G端口时钟
+=======
+ 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_GPIOB, ENABLE);	
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;	
+ 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 	GPIO_Init(GPIOD, &GPIO_InitStructure);	  
+ 	GPIO_SetBits(GPIOA,GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;	  
+ 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+ 	GPIO_SetBits(GPIOB,GPIO_Pin_0);	
+>>>>>>> f371684a4d2ea8aaca79d61859aef9bb735a1623
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7;	 
+ 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+ 	GPIO_Init(GPIOA, &GPIO_InitStructure);	 
+ 	GPIO_SetBits(GPIOA,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);	
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;	 
+ 	GPIO_Init(GPIOB, &GPIO_InitStructure);	 
+ 	GPIO_SetBits(GPIOB,GPIO_Pin_0);	
+	
+>>>>>>> 0ba459acaaacc03cbc49fa6866ea79bb52102e29
 	  //打开片选使能
 	 OLED_RST_Clr();
 	delay_ms(20);

@@ -15,22 +15,60 @@
 #define	Brightness	0xFF 
 #define X_WIDTH 	128
 #define Y_WIDTH 	64	    						  
-//-----------------OLED端口定义----------------  					   
+//-----------------OLED端口定义----------------  		
 
 //说明: 
 //-此lcd不带触摸接口，BLK为背光开关，默认可以不接
 //GND    电源地
 //VCC    3.3v电源
+<<<<<<< HEAD
 //CLK    接PD6 	PA5 --sck
+=======
+<<<<<<< HEAD
+//CLK    接PD6 	PA5
+//MOSI   接PD7	PA7
+//RES    接PD4 	PA6
+//DC     接PD5 	PB0
+//BLK可以不接
+//MISO不接
+
+=======
+//CLK    接PD6 	PA5  --sck
+>>>>>>> 0ba459acaaacc03cbc49fa6866ea79bb52102e29
 //MOSI   接PD7	PA7 --mosi
 //RES    接PD4 	PA6 --miso
 //DC     接PD5 	PB0 --pb0
 //BLK可以不接
 //MISO不接
 
+<<<<<<< HEAD
 #define OLED_RST_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_6)//RES
 #define OLED_RST_Set() GPIO_SetBits(GPIOA,GPIO_Pin_6)
 
+=======
+#define OLED_DC_Clr() GPIO_ResetBits(GPIOB,GPIO_Pin_0)//DC
+#define OLED_DC_Set() GPIO_SetBits(GPIOB,GPIO_Pin_0)
+>>>>>>> f371684a4d2ea8aaca79d61859aef9bb735a1623
+
+#define OLED_RST_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_6)//RES
+#define OLED_RST_Set() GPIO_SetBits(GPIOA,GPIO_Pin_6)
+
+<<<<<<< HEAD
+#define OLED_DC_Clr() GPIO_ResetBits(GPIOB,GPIO_Pin_0)//DC
+#define OLED_DC_Set() GPIO_SetBits(GPIOB,GPIO_Pin_0)
+
+
+#define OLED_SCLK_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_5)//CLK
+#define OLED_SCLK_Set() GPIO_SetBits(GPIOA,GPIO_Pin_5)
+
+=======
+#define OLED_SCLK_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_5)//CLK
+#define OLED_SCLK_Set() GPIO_SetBits(GPIOA,GPIO_Pin_5)
+
+>>>>>>> f371684a4d2ea8aaca79d61859aef9bb735a1623
+#define OLED_SDIN_Clr() GPIO_ResetBits(GPIOA,GPIO_Pin_7)//DIN
+#define OLED_SDIN_Set() GPIO_SetBits(GPIOA,GPIO_Pin_7)
+>>>>>>> 0ba459acaaacc03cbc49fa6866ea79bb52102e29
 
 #define OLED_CMD  0	//写命令
 #define OLED_DATA 1	//写数据
