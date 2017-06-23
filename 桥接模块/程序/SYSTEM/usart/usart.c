@@ -175,16 +175,22 @@ void UART3_Init(u32 bound)
 }
 
 
-
-
-
-
-
 void receive_data_from_control_bus(u8 usartData)
 {
 	static u8 data_count = 0 , data_num = 8;
 	u16 CRC_temp;
+	/*
+	USART_SendData(USART2,data_num);
+	while(USART_GetFlagStatus(USART2,USART_FLAG_TC)!=SET);//等待发送结束
+	
+	
+	USART_SendData(USART2,data_count);
+	while(USART_GetFlagStatus(USART2,USART_FLAG_TC)!=SET);//等待发送结束
+	
+	USART_SendData(USART2,usartData);
+	while(USART_GetFlagStatus(USART2,USART_FLAG_TC)!=SET);//等待发送结束
 		
+	*/
 	if( (control_bus_data_received == 0) && ( data_count < data_num) )
 	{
 		
@@ -270,6 +276,10 @@ void USART1_IRQHandler(void)
 { 
   if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
   {		
+		/*
+		USART_SendData(USART2,0XFF);
+		while(USART_GetFlagStatus(USART2,USART_FLAG_TC)!=SET);//等待发送结束
+		*/
     /* Read one byte from the receive data register */
 		receive_data_from_control_bus(USART_ReceiveData(USART1));
 	}

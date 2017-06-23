@@ -2,6 +2,8 @@
 #include "init.h"
 #include "usart.h"
 #include "config_variables.h"
+extern u8 tt[];
+
 void start_up(void)
 {
 		USART_Cmd(USART1, ENABLE);
@@ -9,8 +11,15 @@ void start_up(void)
 		USART_Cmd(USART3, ENABLE);
 		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
 		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+		
+		usart1_send_string(tt,5);
+		usart2_send_string(tt,5);
+		usart3_send_string(tt,5);
+		
+		
 		TIM_Cmd(TIM3, ENABLE);  //使能TIM3外设	 
 		TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE ); //使能指定的TIM3中断,允许更新中断
+	
 		//RS485接收模式使能
 		//RS485_RX_MODE_ENABLE();
 }

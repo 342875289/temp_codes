@@ -46,10 +46,6 @@ extern float xy[256][2];
 extern float result_Pin4[2];
 extern float result_Pin3[2];
 
-extern struct sensor_data static_level_sensor_profile[3];
-extern struct sensor_data angle_sensor_profile[3];
-extern struct Self_State self_state;
-extern struct Self_State_saved self_state_saved,*config_point;
 struct Self_State{
 	u8 self_address;
 	u8 target_address;
@@ -71,5 +67,11 @@ struct sensor_data{
 	u8 is_new ;
 	double delta_orignal;
 };
+
+
+extern struct sensor_data static_level_sensor_profile[3];
+extern struct sensor_data angle_sensor_profile[3];
+extern struct Self_State self_state;
+extern struct Self_State_saved self_state_saved,*config_point;
 
 #endif
